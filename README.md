@@ -17,7 +17,7 @@ The goal of this task is to evaluate your ability to perform **inferCNV analysis
 
 The dataset has been prepared as follows:
 
-1. Original single-cell RNA-seq data were obtained from **Vasquez-Garcia et al.**
+1. Original single-cell RNA-seq data were obtained from [Vasquez-Garcia et al.](https://pubmed.ncbi.nlm.nih.gov/36517593/)
 2. Only patients with cells available from **both Solid tumor tissue and Ascites** were retained.
 3. For each patient and sample type:
    - Up to **1,500 tumor cells** were randomly selected (if available).
