@@ -1,80 +1,66 @@
-# PhD Candidate Task: Single-Cell CNV Analysis
+# inferCNV Analysis: Solid vs Ascites in HGSOC
 
-## Context
+Single-cell CNV analysis comparing solid tumor and ascites compartments in high-grade serous ovarian cancer (HGSOC), using inferCNV on scRNA-seq data from the SPECTRUM cohort.
 
-You are provided with **single-cell RNA-seq data from High-Grade Serous Ovarian Cancer (HGSOC)**. For each patient, tumor cells were collected from:
+## Dataset
 
-- **Solid tumor tissue**
-- **Ascites (fluid) samples**
+- **Source**: Vasquez-Garcia et al. (*Nature*, 2022) — SPECTRUM cohort
+- **Size**: 5,000 genes x 70,437 cells from 25 HGSOC patients
+- **Composition**: 45,437 malignant cells (34,500 Solid + 10,937 Ascites) and 25,000 immune reference cells
+- **Paired samples**: 19 patients with malignant cells from both tumor sites
 
-Non-malignant cells (e.g., immune cells) are included to serve as reference for copy number variation (CNV) inference.
+## Analysis overview
 
-The goal of this task is to evaluate your ability to perform **inferCNV analysis**, compare CNV profiles between sample types, and identify recurrent genomic alterations.
+1. **inferCNV** run with immune cells as diploid reference (cutoff=0.1, denoise=TRUE, HMM=FALSE)
+2. Per-chromosome CNV scores computed for each cell, then aggregated by tumor site
+3. Paired Wilcoxon signed-rank tests (n=19) with BH correction to compare Solid vs Ascites
+4. Sensitivity analysis excluding 7 patients with <50 ascites malignant cells
+5. Gene-level classification of shared vs site-specific alterations (gain >1.05, loss <0.95)
 
----
+## Key findings
 
-## Data Preparation
+- **High overall correlation** (Pearson r = 0.94) between Solid and Ascites CNV profiles, consistent with shared clonal origin
+- **Shared gains**: Chr20 (77% of genes), Chr8 (51%), Chr3 (41%)
+- **Shared losses**: Chr22 (100% of genes), Chr6 (51% — HLA/MHC region)
+- **Site-specific**: Chr20 is significantly more amplified in Ascites (p_adj = 0.045, n=19; confirmed in sensitivity analysis with p_adj = 0.038, n=12)
+- Chr20 harbours metastasis-relevant genes including GNAS, LAMA5, WFDC2 (HE4), SOX18, MMP9, and UBE2C
 
-The dataset has been prepared as follows:
+## Output structure
 
-1. Original single-cell RNA-seq data were obtained from [Vasquez-Garcia et al.](https://pubmed.ncbi.nlm.nih.gov/36517593/)
-2. Only patients with cells available from **both Solid tumor tissue and Ascites** were retained.
-3. For each patient and sample type:
-   - Up to **1,500 tumor cells** were randomly selected (if available).
-   - **1,000 immune cells** were randomly selected to serve as reference/baseline for inferCNV.
-4. Cell metadata includes:
-   - `cell_id`
-   - `patient_id`
-   - `tumor_site` (`Solid` / `Ascites`)
-   - `cell_type` (`Malignant` / `Reference`)
-
-This ensures a **balanced dataset per patient and sample type** for CNV comparison, while keeping the analysis feasible on a personal computer.
-
----
-
-## Data Provided
-
-1. A **SingleCellExperiment (SCE) object** containing:
-   - Raw count matrix
-   - Cell metadata
-2. A gene annotation file: `gene_positions.tsv`, containing chromosome and genomic position information.
-
----
-
-## Tasks
-
-You are expected to perform the following:
-
-### 1. InferCNV Analysis
-
-- Use the `inferCNV` R package.
-- The following parameters are suggested to keep the runtime manageable:
-``` cutoff = 0.1,
-    cluster_by_groups = TRUE,
-    denoise = TRUE,
-    HMM = FALSE,
-    diagnostics = FALSE,
-    plot_steps = FALSE,
-    inspect_subclusters = FALSE,
-    no_prelim_plot = TRUE
+```
+Infer_copy_number_results/
+├── infercnv_run/             # raw inferCNV output
+├── figures/
+│   ├── 01_genome_wide_cnv_profile.png
+│   ├── 02_chr_barplot_comparison.png
+│   ├── 03_chr_alteration_frequency.png
+│   ├── 04a_heatmap_solid.png
+│   ├── 04b_heatmap_ascites.png
+│   ├── 05_heatmap_difference.png
+│   ├── 06_correlation_scatter.png
+│   └── 07_chr20_boxplot.png
+└── tables/
+    ├── chr_comparison.csv
+    ├── chr_paired_tests.csv
+    ├── chr_paired_tests_sensitivity.csv
+    ├── chr_alteration_summary.csv
+    ├── gene_level_cnv_results.csv
+    └── patient_chr_data.csv
 ```
 
-### 2. Compare CNV profiles between Solid and Ascites samples
+## How to run
 
-- Compute CNV metrics per cell and/or per chromosome.
-- Compare CNV profiles between Solid and Ascites samples.
-- Visualize differences using appropriate plots (e.g., chromosome-level CNV line plots).
+```r
+# from the project root directory
+source("Basel_ovarian_cancer_project.R")
+```
 
-### 3. Identify frequently altered regions
+Requires R >= 4.2 with: `SingleCellExperiment`, `infercnv`, `dplyr`, `tidyr`, `ggplot2`, `pheatmap`, `RColorBrewer`.
 
-- Identify genomic regions or chromosomes that are **most consistently amplified or deleted**
-- Distinguish between **shared alterations** and **site-specific alterations**.
-- You may use simple statistics (mean CNV, frequency of gain/loss per region) and/or visual inspection of plots
+The inferCNV step takes roughly 4-5 hours on 4 threads. If the output already exists it will be skipped automatically.
 
-### 4. Short presentation
+## Limitations
 
-- Prepare a **short** presentation summarizing your analysis.
-
-### 5. Code and Reproducibility
-
-- All code used for the analysis **must be shared** via a Git repository (e.g., GitHub, GitLab).
+- 7 of 19 paired patients had fewer than 50 ascites malignant cells, making their per-patient CNV estimates noisy. Sensitivity analysis confirmed the main finding (chr20) is robust to their exclusion.
+- inferCNV infers copy number from expression data — it is a proxy, not direct DNA-level measurement.
+- Gain/loss thresholds (1.05/0.95) applied to mean CNV across cells are a reasonable but somewhat arbitrary choice for aggregated data.

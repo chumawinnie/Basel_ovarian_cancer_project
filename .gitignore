@@ -1,0 +1,5 @@
+rawdata/*.RDS
+Infer_copy_number_results/infercnv_run/
+*.infercnv_obj
+.Rhistory
+.RData
