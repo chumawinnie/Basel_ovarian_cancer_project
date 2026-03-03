@@ -57,10 +57,10 @@ source("Basel_ovarian_cancer_project.R")
 
 Requires R >= 4.2 with: `SingleCellExperiment`, `infercnv`, `dplyr`, `tidyr`, `ggplot2`, `pheatmap`, `RColorBrewer`.
 
-The inferCNV step takes roughly 4-5 hours on 4 threads. If the output already exists it will be skipped automatically.
+please note : The inferCNV step takes roughly 4-5 hours on 4 threads. If the output already exists it will be skipped automatically.
 
 ## Limitations
 
 - 7 of 19 paired patients had fewer than 50 ascites malignant cells, making their per-patient CNV estimates noisy. Sensitivity analysis confirmed the main finding (chr20) is robust to their exclusion.
-- inferCNV infers copy number from expression data — it is a proxy, not direct DNA-level measurement.
+- inferCNV infers copy number from expression data, it is a proxy, not direct DNA-level measurement.
 - Gain/loss thresholds (1.05/0.95) applied to mean CNV across cells are a reasonable but somewhat arbitrary choice for aggregated data.
