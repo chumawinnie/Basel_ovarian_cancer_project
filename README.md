@@ -56,7 +56,13 @@ source("Basel_ovarian_cancer_project.R")
 ```
 
 Requires R >= 4.2 with: `SingleCellExperiment`, `infercnv`, `dplyr`, `tidyr`, `ggplot2`, `pheatmap`, `RColorBrewer`.
-- JAGS (external dependency for inferCNV)
+- inferCNV needs JAGS (a separate program) installed on your system.
+Install JAGS
+
+Go to: https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/
+Download JAGS-4.3.2.exe (the Windows installer)
+Run the installer, accept all defaults
+Restart RStudio after installation
 
 please note : The inferCNV step takes roughly 4-5 hours on 4 threads. If the output already exists it will be skipped automatically.
 
