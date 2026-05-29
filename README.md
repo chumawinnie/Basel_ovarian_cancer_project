@@ -2,7 +2,7 @@
 
 Single-cell CNV analysis comparing solid tumor and ascites compartments in high-grade serous ovarian cancer (HGSOC), using inferCNV on scRNA-seq data from the SPECTRUM cohort.
 
-## Dataset
+## Datasets
 
 - **Source**: Vasquez-Garcia et al. (*Nature*, 2022) — SPECTRUM cohort
 - **Size**: 5,000 genes x 70,437 cells from 25 HGSOC patients
